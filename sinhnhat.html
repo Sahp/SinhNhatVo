@@ -43,21 +43,25 @@
             position: absolute;
             font-size: 20px;
             animation: fall linear infinite;
+            z-index: 0;
         }
         @keyframes fall {
-            0% { transform: translateY(-100vh); opacity: 1; }
-            100% { transform: translateY(100vh); opacity: 0; }
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
         }
+        /* Hiệu ứng nhảy */
         @keyframes bounce {
             0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
             40% { transform: translateY(-20px); }
             60% { transform: translateY(-10px); }
         }
+        /* Hiệu ứng đập tim */
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.2); }
             100% { transform: scale(1); }
         }
+        /* Thông báo bật nhạc */
         .music-prompt {
             position: fixed;
             top: 0;
@@ -83,6 +87,15 @@
         .music-prompt button:hover {
             transform: scale(1.1);
         }
+        /* Bánh sinh nhật */
+        .cake {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            z-index: 1;
+        }
     </style>
 </head>
 <body>
@@ -92,32 +105,46 @@
         <p>Anh chúc em thật nhiều niềm vui, hạnh phúc và sức khỏe!</p>
         <p class="heart">❤️ Anh yêu em rất nhiều! ❤️</p>
     </div>
-    <div class="music-prompt" id="musicPrompt">
-        <button onclick="playMusic()">Nhấn để bật nhạc "Happy Birthday"!</button>
+    <div class="music-prompt" id="musicPrompt" onclick="hidePrompt(event)">
+        <button onclick="playMusic(event)">Nhấn để bật nhạc!</button>
     </div>
+    <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbDRmdTZqdm5hMTliejR1aGpma3Z4ZzZ6djc0cTBkMjF6OWU1NGxtaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/1K9t2xkzFrmM7c1E6U/giphy.gif" alt="Bánh sinh nhật" class="cake">
     <audio id="birthdayMusic" loop>
         <source src="https://github.com/Sahp/SinhNhatVo/raw/refs/heads/main/music.mp3" type="audio/mp3">
         Trình duyệt của bạn không hỗ trợ âm thanh.
     </audio>
 
     <script>
+        // Tạo hoa rơi ngẫu nhiên với nhiều loại hoa
         function createFlower() {
             const flower = document.createElement('div');
             flower.className = 'flower';
-            flower.innerHTML = '🌸';
+            const flowerTypes = ['🌸', '🌺', '🌷', '🌹', '💐'];
+            flower.innerHTML = flowerTypes[Math.floor(Math.random() * flowerTypes.length)];
             flower.style.left = Math.random() * 100 + 'vw';
-            flower.style.animationDuration = Math.random() * 5 + 5 + 's';
+            flower.style.fontSize = Math.random() * 20 + 15 + 'px';
+            flower.style.animationDuration = Math.random() * 4 + 2 + 's';
+            flower.style.opacity = Math.random() * 0.5 + 0.5;
             document.body.appendChild(flower);
-            setTimeout(() => flower.remove(), 10000);
+            setTimeout(() => flower.remove(), 6000);
         }
-        setInterval(createFlower, 500);
+        setInterval(createFlower, 150); // Nhiều hoa rơi
 
-        function playMusic() {
+        // Hàm phát nhạc
+        function playMusic(event) {
+            event.stopPropagation(); // Ngăn sự kiện click ra ngoài
             const audio = document.getElementById('birthdayMusic');
             audio.play().catch(function(error) {
                 console.log("Lỗi phát nhạc: ", error);
             });
             document.getElementById('musicPrompt').style.display = 'none';
+        }
+
+        // Hàm ẩn thông báo khi nhấp ra ngoài
+        function hidePrompt(event) {
+            if (event.target === document.getElementById('musicPrompt')) {
+                document.getElementById('musicPrompt').style.display = 'none';
+            }
         }
     </script>
 </body>
