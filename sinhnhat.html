@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chúc Mừng Sinh Nhật Vợ Yêu</title>
+    <!-- Thêm FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -37,6 +39,7 @@
             margin: 50px auto;
             position: relative;
             z-index: 1;
+            display: none; /* Ẩn ban đầu */
         }
         /* Hoa rơi */
         .flower {
@@ -61,33 +64,45 @@
             50% { transform: scale(1.2); }
             100% { transform: scale(1); }
         }
-        /* Thông báo bật nhạc */
-        .music-prompt {
+        /* Hình nền ban đầu */
+        .intro-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: url('https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExd3BwdnVpM2Y4OGkyZjdxdDgyY3hydmEyd243Zm1teHp5cHU3NTIyNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26ufcYAkp8e66vanu/giphy.gif') center no-repeat;
+            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 2;
+            transition: opacity 1s ease;
         }
-        .music-prompt button {
-            padding: 15px 30px;
-            font-size: 20px;
-            color: white;
-            background-color: #ff3366;
-            border: none;
-            border-radius: 10px;
+        .intro-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        /* Bức thư tình yêu */
+        .love-letter {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            background: url('https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmkzcWR2NWk3aXVmZDF5bnlyZGFxMXltbTc2MHp5ZG8yMTNiZHl1OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/duuOhKVbKQO8B4YcYB/giphy.gif') center no-repeat;
+            background-size: contain;
             cursor: pointer;
-            transition: transform 0.3s;
+            z-index: 3;
+            animation: flutter 2s infinite ease-in-out;
         }
-        .music-prompt button:hover {
-            transform: scale(1.1);
+        @keyframes flutter {
+            0% { transform: translate(-50%, -50%) rotate(-5deg); }
+            50% { transform: translate(-50%, -50%) rotate(5deg); }
+            100% { transform: translate(-50%, -50%) rotate(-5deg); }
         }
-        /* Bánh sinh nhật */
+        /* Ảnh động nhỏ */
         .cake {
             position: absolute;
             bottom: 20px;
@@ -95,20 +110,37 @@
             transform: translateX(-50%);
             width: 200px;
             z-index: 1;
+            display: none; /* Ẩn ban đầu */
+        }
+        /* Biểu tượng âm thanh */
+        .audio-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 30px;
+            color: #ff3366;
+            cursor: pointer;
+            z-index: 1;
+            display: none; /* Ẩn ban đầu */
+            transition: transform 0.3s;
+        }
+        .audio-control:hover {
+            transform: scale(1.2);
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="content">
         <h1>Chúc Mừng Sinh Nhật Vợ Yêu!</h1>
         <p>Hôm nay, ngày 24 tháng 3 năm 2025, là ngày đặc biệt của em.</p>
         <p>Anh chúc em thật nhiều niềm vui, hạnh phúc và sức khỏe!</p>
         <p class="heart">❤️ Anh yêu em rất nhiều! ❤️</p>
     </div>
-    <div class="music-prompt" id="musicPrompt" onclick="hidePrompt(event)">
-        <button onclick="playMusic(event)">Nhấn để bật nhạc!</button>
+    <div class="intro-screen" id="introScreen">
+        <div class="love-letter" id="letter" onclick="playMusic(event)"></div>
     </div>
-    <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbDRmdTZqdm5hMTliejR1aGpma3Z4ZzZ6djc0cTBkMjF6OWU1NGxtaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/1K9t2xkzFrmM7c1E6U/giphy.gif" alt="Bánh sinh nhật" class="cake">
+    <i class="audio-control fas" id="audioControl" onclick="toggleAudio()"></i>
+    <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbDRmdTZqdm5hMTliejR1aGpma3Z4ZzZ6djc0cTBkMjF6OWU1NGxtaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/1K9t2xkzFrmM7c1E6U/giphy.gif" alt="Bánh sinh nhật" class="cake" id="cake">
     <audio id="birthdayMusic" loop>
         <source src="https://github.com/Sahp/SinhNhatVo/raw/refs/heads/main/music.mp3" type="audio/mp3">
         Trình duyệt của bạn không hỗ trợ âm thanh.
@@ -128,22 +160,50 @@
             document.body.appendChild(flower);
             setTimeout(() => flower.remove(), 6000);
         }
-        setInterval(createFlower, 150); // Nhiều hoa rơi
 
-        // Hàm phát nhạc
+        // Hàm mở nội dung
+        function showContent(play = false) {
+            const introScreen = document.getElementById('introScreen');
+            introScreen.classList.add('hidden');
+            setTimeout(() => {
+                document.getElementById('content').style.display = 'block';
+                document.getElementById('cake').style.display = 'block';
+                document.getElementById('audioControl').style.display = 'block';
+                document.querySelectorAll('.flower').forEach(f => f.style.display = 'block');
+                setInterval(createFlower, 100); // Bắt đầu hoa rơi
+                const audioControl = document.getElementById('audioControl');
+                if (play) {
+                    audioControl.classList.add('fa-volume-up');
+                } else {
+                    audioControl.classList.add('fa-volume-mute');
+                }
+            }, 1000); // Chờ hình nền mờ đi (1 giây)
+        }
+
+        // Hàm phát nhạc khi nhấp bức thư
         function playMusic(event) {
-            event.stopPropagation(); // Ngăn sự kiện click ra ngoài
+            event.stopPropagation();
             const audio = document.getElementById('birthdayMusic');
             audio.play().catch(function(error) {
                 console.log("Lỗi phát nhạc: ", error);
             });
-            document.getElementById('musicPrompt').style.display = 'none';
+            showContent(true);
         }
 
-        // Hàm ẩn thông báo khi nhấp ra ngoài
-        function hidePrompt(event) {
-            if (event.target === document.getElementById('musicPrompt')) {
-                document.getElementById('musicPrompt').style.display = 'none';
+        // Hàm bật/tắt âm thanh
+        function toggleAudio() {
+            const audio = document.getElementById('birthdayMusic');
+            const audioControl = document.getElementById('audioControl');
+            if (audioControl.classList.contains('fa-volume-up')) {
+                audio.pause();
+                audioControl.classList.remove('fa-volume-up');
+                audioControl.classList.add('fa-volume-mute');
+            } else {
+                audio.play().catch(function(error) {
+                    console.log("Lỗi phát nhạc: ", error);
+                });
+                audioControl.classList.remove('fa-volume-mute');
+                audioControl.classList.add('fa-volume-up');
             }
         }
     </script>
